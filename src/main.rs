@@ -32,9 +32,19 @@ fn shift_rows(state: &mut [[u8; 4]; 4]) {
     state[3][0] = temp;
     println!("shift_rows {:?}", state);
 }
-fn mix_columns(column: &mut [u8; 4]) {
-    println!("mix_columns {:?}", column);
-    // TODO implement
+fn mix_columns(r: &mut [u8; 4]) {
+    let mut a: [u8; 4] = [r[0], r[1], r[2], r[3]]; // Copy input
+    let mut h: [u8; 4] = [r[0] >> 7, r[1] >> 7, r[2] >> 7, r[3] >> 7]; // Right shift by 7. Only keep left most bit of input
+    h = [(r[0] << 1)^(h[0] * 27),
+         (r[1] << 1)^(h[1] * 27),
+         (r[2] << 1)^(h[2] * 27),
+         (r[3] << 1)^(h[3] * 27)];
+
+    // Matrix mult in GF2^8
+    r[0] = h[0] ^ a[3] ^ a[2] ^ h[1] ^ a[1];
+    r[1] = h[1] ^ a[0] ^ a[3] ^ h[2] ^ a[2];
+    r[2] = h[2] ^ a[1] ^ a[0] ^ h[3] ^ a[3];
+    r[3] = h[3] ^ a[2] ^ a[1] ^ h[0] ^ a[0];
 }
 fn add_round_key(mut ciphertext: &str, mut round_key: &str) {
     // Use bitwise xor on the ciphertext
@@ -113,5 +123,21 @@ mod tests {
         let mut test_input: [u8; 4] = [99, 71, 162, 240];
         mix_columns(&mut test_input);
         assert_eq!(test_input, [93, 224, 112, 187]);
+
+        let mut test_input: [u8; 4] = [242, 10, 34, 92];
+        mix_columns(&mut test_input);
+        assert_eq!(test_input, [159, 220, 88, 157]);
+
+        let mut test_input: [u8; 4] = [1, 1, 1, 1];
+        mix_columns(&mut test_input);
+        assert_eq!(test_input, [1, 1, 1, 1]);
+
+        let mut test_input: [u8; 4] = [212, 212, 212, 213];
+        mix_columns(&mut test_input);
+        assert_eq!(test_input, [213, 213, 215, 214]);
+
+        let mut test_input: [u8; 4] = [45, 38, 49, 76];
+        mix_columns(&mut test_input);
+        assert_eq!(test_input, [77, 126, 189, 248]);
     }
 }
