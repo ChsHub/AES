@@ -17,4 +17,4 @@ Upcoming features:
 If you want to support the project, please donate to the developer on ko-fi (Button at the top). Pull requests won't be accepted at the moment.
 
 ## Disclaimer
-All code was handwritten in the EU without AI.
+All code was handcrafted in the EU without AI.
