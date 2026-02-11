@@ -11,6 +11,7 @@ Upcoming features:
 - add_round_key function
 - decryption function
 - full unit tests of all components
+- cargo deployment
 
 ## Contribution
 If you want to support the project, please donate to the developer on ko-fi (Button at the top). Pull requests won't be accepted at the moment.

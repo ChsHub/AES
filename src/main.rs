@@ -1,6 +1,14 @@
+use crate::AESType::AES256;
+
+pub enum AESType {
+    AES128,
+    AES192,
+    AES256,
+}
 fn sub_bytes(mut ciphertext: &str) {
     // Look up table to replace bytes
-    println!("sub_bytes {:?}", ciphertext);
+    println!("sub_bytes {:?}", ciphertext)
+    // TODO implement
 }
 fn shift_rows(state: &mut [[i8; 4]; 4]) {
     println!("shift_rows {:?}", state);
@@ -26,27 +34,23 @@ fn shift_rows(state: &mut [[i8; 4]; 4]) {
 }
 fn mix_columns(mut ciphertext: &str) {
     println!("mix_columns {:?}", ciphertext);
+    // TODO implement
 }
 fn add_round_key(mut ciphertext: &str, mut round_key: &str) {
     // Use bitwise xor on the ciphertext
     println!("add_round_key {:?}", ciphertext);
+    // TODO implement
 }
 
-fn main() {
-    // https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
-    let mut plaintext = "Hello World!";
-    let mut ciphertext = "";
-    let mut aes_type = 256;
-
-    encrypt(&mut plaintext, ciphertext, &mut aes_type);
+fn decrypt(){
+    // TODO implement
 }
 
-fn encrypt(plaintext: &mut &str, mut ciphertext: &str, aes_type: &mut i32) {
+fn encrypt(plaintext: &mut &str, aes_type: &AESType) -> String{
     let rounds: i8 = match aes_type {
-        128 => 10,
-        192 => 12,
-        256 => 14,
-        _ => panic!(),
+        AESType::AES128 => 10,
+        AESType::AES192 => 12,
+        AESType::AES256 => 14
     };
 
     println!("{}", plaintext.to_string());
@@ -55,20 +59,29 @@ fn encrypt(plaintext: &mut &str, mut ciphertext: &str, aes_type: &mut i32) {
     // println!("{:#?}", state[1][1]);
 
     let round_key = "Test round key";
-    add_round_key(ciphertext, round_key);
+    add_round_key(plaintext, round_key);
 
     for i in 1..rounds {
         let round_key = "Test round key";
         println!("{}", i);
-        sub_bytes(ciphertext);
+        sub_bytes(plaintext);
         shift_rows(&mut state);
-        mix_columns(ciphertext);
-        add_round_key(ciphertext, round_key);
+        mix_columns(plaintext);
+        add_round_key(plaintext, round_key);
     }
     let round_key = "Test round key";
-    sub_bytes(ciphertext);
+    sub_bytes(plaintext);
     shift_rows(&mut state);
-    add_round_key(ciphertext, round_key);
+    add_round_key(plaintext, round_key);
 
-    println!("{}", ciphertext.to_string());
+    println!("{}", plaintext.to_string());
+    return plaintext.to_string()
+}
+
+fn main() {
+    // https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+    let mut plaintext = "Hello World!"; // Some example inputs for testing
+    let aes_type = AES256;
+
+    let ciphertext = encrypt(&mut plaintext, &aes_type);
 }
