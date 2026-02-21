@@ -115,11 +115,18 @@ fn add_round_key(state: &mut [[u8; 4]; 4], round_key: &[[u8; 4]; 4]) {
     print_matrix(*state)
 }
 
+fn expand_key(cipher_key: &str){
+    // Expand key to block length * (rounds +1) bits
+    // TODO implement
+}
+
 fn decrypt() {
     // TODO implement
 }
 
-fn encrypt(plaintext: &mut &str, aes_type: &AESType) -> String {
+
+
+fn encrypt(plaintext: &str, cipher_key: &str, aes_type: &AESType) -> String {
     let rounds: u8 = match aes_type {
         AESType::AES128 => 10,
         AESType::AES192 => 12,
@@ -127,13 +134,13 @@ fn encrypt(plaintext: &mut &str, aes_type: &AESType) -> String {
     };
 
     println!("{}", plaintext.to_string());
-    // Column major order
+    // Column major order (128bit block length)
     let mut state: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]];
     print_matrix(state);
 
     // TODO Key Expansion for the round keys?
 
-    let round_key: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]; // TODO change round key
+    let round_key: [[u8; 4]; 4] = [[1, 5, 9, 13], [2, 6, 10, 14], [0, 4, 8, 12], [3, 7, 11, 15]]; // TODO change round key
     add_round_key(&mut state, &round_key);
 
     for i in 1..rounds {
@@ -158,9 +165,10 @@ fn encrypt(plaintext: &mut &str, aes_type: &AESType) -> String {
 fn main() {
     // https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
     let mut plaintext = "Hello World!"; // Some example inputs for testing
+    let mut cipher_key = "Secret KEY!"; // Some example inputs for testing
     let aes_type = AES256;
 
-    let ciphertext = encrypt(&mut plaintext, &aes_type);
+    let ciphertext = encrypt(&mut plaintext, &cipher_key, &aes_type);
 }
 
 #[cfg(test)]
