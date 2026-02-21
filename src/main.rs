@@ -88,7 +88,7 @@ fn mix_columns(state: &mut [[u8; 4]; 4]) {
 }
 
 fn mix_single_column(r: &mut [u8; 4]) {
-    let mut a: [u8; 4] = [r[0], r[1], r[2], r[3]]; // Copy input
+    let a: [u8; 4] = [r[0], r[1], r[2], r[3]]; // Copy input
     let mut h: [u8; 4] = [r[0] >> 7, r[1] >> 7, r[2] >> 7, r[3] >> 7]; // Right shift by 7. Only keep left most bit of input
     h = [
         (r[0] << 1) ^ (h[0] * 27),
