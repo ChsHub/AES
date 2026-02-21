@@ -8,7 +8,6 @@ The project is current still in the pre-alpha phase.
 Upcoming features:
 - Key Expansion
 - Convert Text input into the states
-- add_round_key function
 - decryption function
 - full unit tests of all components
 - cargo deployment
