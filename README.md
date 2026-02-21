@@ -6,7 +6,6 @@ The project is current still in the pre-alpha phase.
 
 ## Roadmap
 Upcoming features:
-- mix_columns function
 - sub_bytes function
 - add_round_key function
 - decryption function
