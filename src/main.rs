@@ -125,6 +125,8 @@ fn encrypt(plaintext: &mut &str, aes_type: &AESType) -> String {
     let mut state: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]];
     print_matrix(state);
 
+    // TODO Key Expansion for the round keys?
+
     let round_key = "Test round key";
     add_round_key(plaintext, round_key);
 
