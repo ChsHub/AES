@@ -121,7 +121,7 @@ fn get_round_key(cipher_key: &[u8], round: u8) -> [[u8; 4]; 4] {
     let start: usize = round as usize * key_len;
     let mut result: [[u8; 4]; 4] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
 
-    if (start < cipher_key.len()) {
+    if start < cipher_key.len() {
         // Copy key as is
         for i in start..cipher_key.len() {
             result[i / 4][i % 4] = cipher_key[i];
@@ -133,25 +133,15 @@ fn get_round_key(cipher_key: &[u8], round: u8) -> [[u8; 4]; 4] {
         result[i / 4][i % 4] = 0; // TODO implement
     }
 
-    return result;
+    result
 }
 
 fn decrypt() {
     // TODO implement
 }
 
-fn encrypt(plaintext: &str, cipher_key: &str, aes_type: &AESType) -> String {
-    println!("{}", plaintext.to_string());
-
-    let rounds: u8 = match aes_type {
-        AESType::AES128 => 10,
-        AESType::AES192 => 12,
-        AESType::AES256 => 14,
-    };
-    let cipher_key = cipher_key.as_bytes();
-    // Column major order (128bit block length)
-    let mut state: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]];
-    print_matrix(state);
+fn encrypt_state(mut state: &mut [[u8; 4]; 4], rounds: u8, cipher_key: &&[u8]) {
+    print_matrix(*state);
 
     let round_key: [[u8; 4]; 4] = get_round_key(cipher_key, 0);
     add_round_key(&mut state, &round_key);
@@ -169,18 +159,62 @@ fn encrypt(plaintext: &str, cipher_key: &str, aes_type: &AESType) -> String {
     sub_bytes(&mut state);
     shift_rows(&mut state);
     add_round_key(&mut state, &round_key);
+}
 
-    println!("{}", plaintext.to_string());
-    return plaintext.to_string();
+fn encrypt(plaintext: &str, cipher_key: &str, aes_type: AESType, ciphertext: &[u8]){
+    println!("{}", plaintext);
+    let rounds: u8 = match aes_type {
+        AESType::AES128 => 10,
+        AESType::AES192 => 12,
+        AESType::AES256 => 14,
+    };
+    let cipher_key = cipher_key.as_bytes(); // Convert to bytes
+    let plaintext = plaintext.as_bytes();
+
+    // Encrypt 16 bytes at a time
+    for i in 0..plaintext.len() / 16 {
+        // Column major order (128bit block length)
+
+        let mut state: [[u8; 4]; 4] = [
+            [
+                plaintext[i + 0],
+                plaintext[i + 4],
+                plaintext[i + 8],
+                plaintext[i + 12],
+            ],
+            [
+                plaintext[i + 1],
+                plaintext[i + 5],
+                plaintext[i + 9],
+                plaintext[i + 13],
+            ],
+            [
+                plaintext[i + 2],
+                plaintext[i + 6],
+                plaintext[i + 10],
+                plaintext[i + 14],
+            ],
+            [
+                plaintext[i + 3],
+                plaintext[i + 7],
+                plaintext[i + 11],
+                plaintext[i + 15],
+            ],
+        ];
+        encrypt_state(&mut state, rounds, &cipher_key);
+    }
+
+    // println!("{}", plaintext.to_string());
 }
 
 fn main() {
     // https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
-    let mut plaintext = "Hello World!"; // Some example inputs for testing
-    let mut cipher_key = "Secret KEY!"; // Some example inputs for testing
-    let aes_type = AES256;
+    let plaintext = "Hello World!"; // Some example inputs for testing
+    let cipher_key = "Secret KEY!"; // Some example inputs for testing
+    let mut aes_type = AES256;
+    let mut ciphertext: &[u8] = plaintext.as_bytes();
 
-    let ciphertext = encrypt(&mut plaintext, &cipher_key, &aes_type);
+    let ciphertext = encrypt(&plaintext, &cipher_key, aes_type, ciphertext);
 }
 
 #[cfg(test)]
