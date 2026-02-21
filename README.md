@@ -9,6 +9,7 @@ Upcoming features:
 - Key Expansion
 - Convert Text input into the states
 - decryption function
+- parallelism for encryption and decryption
 - full unit tests of all components
 - cargo deployment
 

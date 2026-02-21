@@ -115,45 +115,57 @@ fn add_round_key(state: &mut [[u8; 4]; 4], round_key: &[[u8; 4]; 4]) {
     print_matrix(*state)
 }
 
-fn expand_key(cipher_key: &str){
-    // Expand key to block length * (rounds +1) bits
-    // TODO implement
+fn get_round_key(cipher_key: &[u8], round: u8) -> [[u8; 4]; 4] {
+    // Each round key is block length = 128bit
+    let key_len: usize = 16;
+    let start: usize = round as usize * key_len;
+    let mut result: [[u8; 4]; 4] = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]];
+
+    if (start < cipher_key.len()) {
+        // Copy key as is
+        for i in start..cipher_key.len() {
+            result[i / 4][i % 4] = cipher_key[i];
+        }
+    }
+    // Expand Key for remaining bytes
+    // A different expansion scheme is used for cipher_key.len <= 6
+    for i in (cipher_key.len() - start)..key_len {
+        result[i / 4][i % 4] = 0; // TODO implement
+    }
+
+    return result;
 }
 
 fn decrypt() {
     // TODO implement
 }
 
-
-
 fn encrypt(plaintext: &str, cipher_key: &str, aes_type: &AESType) -> String {
+    println!("{}", plaintext.to_string());
+
     let rounds: u8 = match aes_type {
         AESType::AES128 => 10,
         AESType::AES192 => 12,
         AESType::AES256 => 14,
     };
-
-    println!("{}", plaintext.to_string());
+    let cipher_key = cipher_key.as_bytes();
     // Column major order (128bit block length)
     let mut state: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]];
     print_matrix(state);
 
-    // TODO Key Expansion for the round keys?
-
-    let round_key: [[u8; 4]; 4] = [[1, 5, 9, 13], [2, 6, 10, 14], [0, 4, 8, 12], [3, 7, 11, 15]]; // TODO change round key
+    let round_key: [[u8; 4]; 4] = get_round_key(cipher_key, 0);
     add_round_key(&mut state, &round_key);
 
     for i in 1..rounds {
         println!("Round : {}", i);
-        let round_key: [[u8; 4]; 4] =
-            [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]; // TODO change round key
+        let round_key: [[u8; 4]; 4] = get_round_key(&cipher_key, i);
         sub_bytes(&mut state);
         shift_rows(&mut state);
         mix_columns(&mut state);
         add_round_key(&mut state, &round_key);
     }
 
-    let round_key: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]; // TODO change round key
+    let round_key: [[u8; 4]; 4] = get_round_key(&cipher_key, rounds);
     sub_bytes(&mut state);
     shift_rows(&mut state);
     add_round_key(&mut state, &round_key);
@@ -267,12 +279,7 @@ mod tests {
         add_round_key(&mut test_input, &test_key);
         assert_eq!(
             test_input,
-            [
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [0, 0, 0, 0]
-            ]
+            [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
         );
     }
 }
