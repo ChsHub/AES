@@ -103,10 +103,16 @@ fn mix_single_column(r: &mut [u8; 4]) {
     r[2] = h[2] ^ a[1] ^ a[0] ^ h[3] ^ a[3];
     r[3] = h[3] ^ a[2] ^ a[1] ^ h[0] ^ a[0];
 }
-fn add_round_key(mut ciphertext: &str, mut round_key: &str) {
+fn add_round_key(state: &mut [[u8; 4]; 4], round_key: &[[u8; 4]; 4]) {
     // Use bitwise xor on the ciphertext
-    println!("add_round_key {:?}", ciphertext);
-    // TODO implement
+    for x in 0..4 {
+        for y in 0..4 {
+            state[y][x] ^= round_key[y][x];
+        }
+    }
+
+    println!("add_round_key ");
+    print_matrix(*state)
 }
 
 fn decrypt() {
@@ -127,21 +133,23 @@ fn encrypt(plaintext: &mut &str, aes_type: &AESType) -> String {
 
     // TODO Key Expansion for the round keys?
 
-    let round_key = "Test round key";
-    add_round_key(plaintext, round_key);
+    let round_key: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]; // TODO change round key
+    add_round_key(&mut state, &round_key);
 
     for i in 1..rounds {
         println!("Round : {}", i);
-        let round_key = "Test round key";
+        let round_key: [[u8; 4]; 4] =
+            [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]; // TODO change round key
         sub_bytes(&mut state);
         shift_rows(&mut state);
         mix_columns(&mut state);
-        add_round_key(plaintext, round_key);
+        add_round_key(&mut state, &round_key);
     }
-    let round_key = "Test round key";
+
+    let round_key: [[u8; 4]; 4] = [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]; // TODO change round key
     sub_bytes(&mut state);
     shift_rows(&mut state);
-    add_round_key(plaintext, round_key);
+    add_round_key(&mut state, &round_key);
 
     println!("{}", plaintext.to_string());
     return plaintext.to_string();
@@ -235,6 +243,27 @@ mod tests {
                 [0x77, 0x6F, 0x67, 0x93],
                 [0x7B, 0xC5, 0x2B, 0x26],
                 [0xF2, 0x30, 0xFE, 0x36]
+            ]
+        );
+    }
+
+    #[test]
+    fn test_add_round_key() {
+        let mut test_input: [[u8; 4]; 4] = [
+            [1, 5, 9, 13],
+            [2, 6, 10, 14],
+            [3, 7, 11, 15],
+            [4, 8, 12, 16],
+        ];
+        let test_key: [[u8; 4]; 4] = test_input.clone();
+        add_round_key(&mut test_input, &test_key);
+        assert_eq!(
+            test_input,
+            [
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0],
+                [0, 0, 0, 0]
             ]
         );
     }
