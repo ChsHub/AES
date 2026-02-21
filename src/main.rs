@@ -147,7 +147,7 @@ mod tests {
         );
     }
     #[test]
-    fn test_mix_columns() {
+    fn test_mix_single_column() {
         let mut test_input: [u8; 4] = [99, 71, 162, 240];
         mix_single_column(&mut test_input);
         assert_eq!(test_input, [93, 224, 112, 187]);
@@ -167,5 +167,24 @@ mod tests {
         let mut test_input: [u8; 4] = [45, 38, 49, 76];
         mix_single_column(&mut test_input);
         assert_eq!(test_input, [77, 126, 189, 248]);
+    }
+    #[test]
+    fn test_mix_columns() {
+        let mut test_input: [[u8; 4]; 4] = [
+            [45, 38, 49, 76],
+            [1, 1, 1, 1],
+            [45, 38, 49, 76],
+            [212, 212, 212, 213],
+        ];
+        mix_columns(&mut test_input);
+        assert_eq!(
+            test_input,
+            [
+                [77, 126, 189, 248],
+                [1, 1, 1, 1],
+                [77, 126, 189, 248],
+                [213, 213, 215, 214]
+            ]
+        );
     }
 }
